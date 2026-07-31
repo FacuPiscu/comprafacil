@@ -1,0 +1,2 @@
+# COMPRA FACIL no requiere paquetes de terceros.
+# Usa unicamente la biblioteca estandar de Python (sqlite3, datetime).
