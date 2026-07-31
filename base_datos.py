@@ -42,3 +42,10 @@ def crear_tabla_reportes(conexion):
         )
     """)
     conexion.commit()
+
+
+def crear_tablas():
+    conexion = conectar()
+    crear_tabla(conexion)
+    crear_tabla_reportes(conexion)
+    conexion.close()

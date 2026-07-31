@@ -45,3 +45,21 @@ def listar_compras():
     ).fetchall()
     conexion.close()
     return filas
+
+
+def listar_articulos(compra_id):
+    conexion = conectar()
+    filas = conexion.execute(
+        "SELECT id, producto, cantidad, precio FROM compras "
+        "WHERE compra_id = ? ORDER BY id",
+        (compra_id,),
+    ).fetchall()
+    conexion.close()
+    return filas
+
+
+def eliminar_articulo(id_articulo):
+    conexion = conectar()
+    conexion.execute("DELETE FROM compras WHERE id = ?", (id_articulo,))
+    conexion.commit()
+    conexion.close()

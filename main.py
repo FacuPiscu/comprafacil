@@ -1,4 +1,5 @@
 import analisis
+import base_datos
 import compras
 import reportes
 
@@ -7,10 +8,12 @@ def mostrar_menu():
     print("\n============ COMPRA FACIL ============")
     print("1. Registrar compra")
     print("2. Ver compras del dia")
-    print("3. Reporte por rango de fechas")
-    print("4. Comparar compras")
-    print("5. Ver reportes guardados")
-    print("6. Salir")
+    print("3. Ver lista de compras")
+    print("4. Reporte por rango de fechas")
+    print("5. Comparar compras")
+    print("6. Ver reportes guardados")
+    print("7. Eliminar articulo")
+    print("8. Salir")
     print("=====================================")
 
 
@@ -56,6 +59,40 @@ def ver_compras_del_dia():
             print(f"Compra {compra_id}:")
         print(f"  {producto:<25} {cantidad:>8} {precio:>10.2f}")
     print("-" * 45)
+
+
+def ver_lista_compras():
+    print("\n--- Lista de compras ---")
+    compras_registradas = compras.listar_compras()
+    if not compras_registradas:
+        print("No hay compras registradas.")
+        return
+    print(f"{'#':>3} {'Fecha':<12} {'Total':>12} {'Unidades':>9}")
+    print("-" * 40)
+    for i, (compra_id, fecha, total, unidades) in enumerate(
+        compras_registradas, 1
+    ):
+        print(f"{i:>3} {fecha:<12} {total:>12.2f} {unidades:>9}")
+    opcion = input(
+        "Seleccione una compra para ver sus articulos (Enter para volver): "
+    ).strip()
+    if not opcion:
+        return
+    try:
+        indice = int(opcion)
+    except ValueError:
+        print("Opcion invalida.")
+        return
+    if indice < 1 or indice > len(compras_registradas):
+        print("Opcion invalida.")
+        return
+    compra_id = compras_registradas[indice - 1][0]
+    articulos = compras.listar_articulos(compra_id)
+    print(f"\n--- Articulos de la compra {compra_id} ---")
+    print(f"{'#':>3} {'Producto':<25} {'Cantidad':>8} {'Precio':>10}")
+    print("-" * 50)
+    for id_articulo, producto, cantidad, precio in articulos:
+        print(f"{id_articulo:>3} {producto:<25} {cantidad:>8} {precio:>10.2f}")
 
 
 def reporte_rango():
@@ -123,7 +160,57 @@ def comparar_compras():
     analisis.comparar_compras(compra_uno, compra_dos)
 
 
+def eliminar_articulo():
+    print("\n--- Eliminar articulo ---")
+    compras_registradas = compras.listar_compras()
+    if not compras_registradas:
+        print("No hay compras registradas.")
+        return
+    print(f"{'#':>3} {'Fecha':<12} {'Total':>12} {'Unidades':>9}")
+    print("-" * 40)
+    for i, (compra_id, fecha, total, unidades) in enumerate(
+        compras_registradas, 1
+    ):
+        print(f"{i:>3} {fecha:<12} {total:>12.2f} {unidades:>9}")
+    try:
+        opcion = int(input("Seleccione la compra del articulo: "))
+    except ValueError:
+        print("Opcion invalida.")
+        return
+    if opcion < 1 or opcion > len(compras_registradas):
+        print("Opcion invalida.")
+        return
+    compra_id = compras_registradas[opcion - 1][0]
+    articulos = compras.listar_articulos(compra_id)
+    if not articulos:
+        print("La compra no tiene articulos.")
+        return
+    print(f"\n--- Articulos de la compra {compra_id} ---")
+    print(f"{'#':>3} {'Producto':<25} {'Cantidad':>8} {'Precio':>10}")
+    print("-" * 50)
+    for id_articulo, producto, cantidad, precio in articulos:
+        print(f"{id_articulo:>3} {producto:<25} {cantidad:>8} {precio:>10.2f}")
+    try:
+        id_articulo = int(input("Id del articulo a eliminar: "))
+    except ValueError:
+        print("Id invalido.")
+        return
+    ids = [articulo[0] for articulo in articulos]
+    if id_articulo not in ids:
+        print("El id no pertenece a la compra seleccionada.")
+        return
+    confirmacion = input(
+        f"Confirmar eliminacion del articulo {id_articulo}? (s/n): "
+    ).strip().lower()
+    if confirmacion != "s":
+        print("Eliminacion cancelada.")
+        return
+    compras.eliminar_articulo(id_articulo)
+    print(f"Articulo {id_articulo} eliminado.")
+
+
 def main():
+    base_datos.crear_tablas()
     while True:
         mostrar_menu()
         opcion = input("Seleccione una opcion: ").strip()
@@ -132,12 +219,16 @@ def main():
         elif opcion == "2":
             ver_compras_del_dia()
         elif opcion == "3":
-            reporte_rango()
+            ver_lista_compras()
         elif opcion == "4":
-            comparar_compras()
+            reporte_rango()
         elif opcion == "5":
-            ver_reportes_guardados()
+            comparar_compras()
         elif opcion == "6":
+            ver_reportes_guardados()
+        elif opcion == "7":
+            eliminar_articulo()
+        elif opcion == "8":
             print("Hasta luego.")
             break
         else:
