@@ -2,3 +2,6 @@
 __pycache__/
 *.pyc
 compras.db
+compra_*.txt
+reporte_entre_compras_*.txt
+inventario_*.txt
